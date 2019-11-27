@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Logs\EventType;
 use App\Enums\UserRole;
 use App\Events\User\UserInvitationLinkExpired;
 use App\Models\PublicAdministration;
@@ -57,6 +58,19 @@ class ExpiredInvitationListenerTest extends TestCase
     {
         $user = factory(User::class)->state('invited')->create();
         $this->publicAdministration->users()->sync([$user->id]);
+
+        $this->expectLogMessage(
+            'info',
+            [
+                'User ' . $user->uuid . ' tried to use an expired invitation link.',
+                [
+                    'user' => $user->uuid,
+                    'pa' => $this->publicAdministration->ipa_code,
+                    'event' => EventType::EXPIRED_USER_INVITATION_USED,
+                ],
+            ]
+        );
+
         event(new UserInvitationLinkExpired($user));
 
         Notification::assertSentTo(
