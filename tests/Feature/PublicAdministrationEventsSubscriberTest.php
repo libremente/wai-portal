@@ -16,18 +16,32 @@ use App\Models\Website;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Public administration events listener tests.
+ */
 class PublicAdministrationEventsSubscriberTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * The public administration.
+     *
+     * @var PublicAdministration the public administration
+     */
     private $publicAdministration;
 
+    /**
+     * Pre-test setup.
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->publicAdministration = factory(PublicAdministration::class)->create();
     }
 
+    /**
+     * Test public administration registered event handler.
+     */
     public function testPublicAdministrationRegistered(): void
     {
         $user = factory(User::class)->create();
@@ -44,6 +58,9 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         event(new PublicAdministrationRegistered($this->publicAdministration, $user));
     }
 
+    /**
+     * Test public administration activated event handler.
+     */
     public function testPublicAdministrationActivated(): void
     {
         $this->expectLogMessage('notice', [
@@ -57,6 +74,9 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         event(new PublicAdministrationActivated($this->publicAdministration));
     }
 
+    /**
+     * Test public administration activation failed event handler.
+     */
     public function testPublicAdministrationActivationFailed(): void
     {
         $errorMessage = 'Fake error message for public administration activation';
@@ -72,6 +92,9 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         event(new PublicAdministrationActivationFailed($this->publicAdministration, $errorMessage));
     }
 
+    /**
+     * Test public administration updated event handler.
+     */
     public function testPublicAdministrationUpdated(): void
     {
         $this->expectLogMessage('notice', [
@@ -85,6 +108,9 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         event(new PublicAdministrationUpdated($this->publicAdministration, []));
     }
 
+    /**
+     * Test public administration primary website activated event handler.
+     */
     public function testPublicAdministrationNotFoundInIpa(): void
     {
         $this->expectLogMessage('warning', [
@@ -98,6 +124,9 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         event(new PublicAdministrationNotFoundInIpa($this->publicAdministration));
     }
 
+    /**
+     * Test public administration primary website activated event handler.
+     */
     public function testPublicAdministrationPrimaryWebsiteUpdated(): void
     {
         $newURL = 'fakenewurl.local';
@@ -116,6 +145,9 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         event(new PublicAdministrationPrimaryWebsiteUpdated($this->publicAdministration, $website, $newURL));
     }
 
+    /**
+     * Test public administration deleted event handler.
+     */
     public function testPublicAdministrationPurged(): void
     {
         $this->expectLogMessage('notice', [

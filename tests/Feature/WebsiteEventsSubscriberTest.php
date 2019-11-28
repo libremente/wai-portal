@@ -23,14 +23,30 @@ use App\Traits\InteractsWithRedisIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Website events listener tests.
+ */
 class WebsiteEventsSubscriberTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * The public administration the website belongs to.
+     *
+     * @var PublicAdministration the public administration
+     */
     private $publicAdministration;
 
+    /**
+     * The website.
+     *
+     * @var Website the website
+     */
     private $website;
 
+    /**
+     * Pre-test setup.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -40,6 +56,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         ]);
     }
 
+    /**
+     * Test website added event handler.
+     */
     public function testWebsiteAdded(): void
     {
         $this->partialMock(InteractsWithRedisIndex::class)
@@ -62,6 +81,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteAdded($this->website));
     }
 
+    /**
+     * Test website activated event handler.
+     */
     public function testWebsiteActivated(): void
     {
         $this->expectLogMessage(
@@ -79,6 +101,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteActivated($this->website));
     }
 
+    /**
+     * Test website updated event handler.
+     */
     public function testWebsiteUpdated(): void
     {
         $this->partialMock(InteractsWithRedisIndex::class)
@@ -89,6 +114,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteUpdated($this->website));
     }
 
+    /**
+     * Test website status changed event handler.
+     */
     public function testWebsiteStatusChanged(): void
     {
         $this->expectLogMessage(
@@ -106,6 +134,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteStatusChanged($this->website, WebsiteStatus::ARCHIVED));
     }
 
+    /**
+     * Test website URL changed event handler.
+     */
     public function testWebsiteUrlChanged(): void
     {
         $oldUrl = 'https://oldfakeurl.local';
@@ -124,6 +155,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteUrlChanged($this->website, $oldUrl));
     }
 
+    /**
+     * Test website scheduled for archiving event handler.
+     */
     public function testWebsiteArchiving(): void
     {
         $this->expectLogMessage(
@@ -141,6 +175,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteArchiving($this->website, 10));
     }
 
+    /**
+     * Test website manually archived event handler.
+     */
     public function testWebsiteArchivedManually(): void
     {
         $this->expectLogMessage(
@@ -158,6 +195,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteArchived($this->website, true));
     }
 
+    /**
+     * Test website archived event handler.
+     */
     public function testWebsiteArchivedForInactivity(): void
     {
         $this->expectLogMessage(
@@ -175,6 +215,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteArchived($this->website, false));
     }
 
+    /**
+     * Test website unarchived event handler.
+     */
     public function testWebsiteUnarchived(): void
     {
         $this->expectLogMessage(
@@ -192,6 +235,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteUnarchived($this->website));
     }
 
+    /**
+     * Test website scheduled for purging event handler.
+     */
     public function testWebsitePurging(): void
     {
         $this->expectLogMessage(
@@ -209,6 +255,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsitePurging($this->website));
     }
 
+    /**
+     * Test website purged event handler.
+     */
     public function testWebsitePurged(): void
     {
         $this->expectLogMessage(
@@ -226,6 +275,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsitePurged($this->website->toJson()));
     }
 
+    /**
+     * Test website manually deleted event handler.
+     */
     public function testWebsiteDeleted(): void
     {
         $this->expectLogMessage(
@@ -243,6 +295,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteDeleted($this->website));
     }
 
+    /**
+     * Test website restored event handler.
+     */
     public function testWebsiteRestored(): void
     {
         $this->expectLogMessage(
@@ -260,6 +315,9 @@ class WebsiteEventsSubscriberTest extends TestCase
         event(new WebsiteRestored($this->website));
     }
 
+    /**
+     * Test primary website inactive event handler.
+     */
     public function testPrimaryWebsiteInactive(): void
     {
         $this->expectLogMessage(

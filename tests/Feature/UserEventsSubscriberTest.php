@@ -26,18 +26,32 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
+/**
+ * User events listener tests.
+ */
 class UserEventsSubscriberTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * The user.
+     *
+     * @var User the user
+     */
     private $user;
 
+    /**
+     * Pre-test setup.
+     */
     public function setUp(): void
     {
         parent::setUp();
         $this->user = factory(User::class)->create();
     }
 
+    /**
+     * Test email verified event handler.
+     */
     public function testEmailVerified(): void
     {
         $this->expectLogMessage('info', [
@@ -51,6 +65,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new Verified($this->user));
     }
 
+    /**
+     * Test user activated event handler.
+     */
     public function testActivated(): void
     {
         $publicAdministration = factory(PublicAdministration::class)->state('active')->create();
@@ -66,6 +83,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserActivated($this->user, $publicAdministration));
     }
 
+    /**
+     * Test user updated event handler.
+     */
     public function testUpdated(): void
     {
         $this->partialMock(InteractsWithRedisIndex::class)
@@ -76,6 +96,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserUpdated($this->user));
     }
 
+    /**
+     * Test super-admin email changed event handler.
+     */
     public function testEmailChangedRegisteredAndSuperAdmin(): void
     {
         Notification::fake();
@@ -99,6 +122,9 @@ class UserEventsSubscriberTest extends TestCase
         );
     }
 
+    /**
+     * Test invited user email changed event handler.
+     */
     public function testEmailChangedForInvited(): void
     {
         Notification::fake();
@@ -119,6 +145,9 @@ class UserEventsSubscriberTest extends TestCase
         );
     }
 
+    /**
+     * Test user status changed event handler.
+     */
     public function testUserStatusChanged(): void
     {
         $this->expectLogMessage('notice', [
@@ -131,6 +160,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserStatusChanged($this->user, UserStatus::PENDING));
     }
 
+    /**
+     * Test user website access changed event handler.
+     */
     public function testWebsiteAccessChanged(): void
     {
         $publicAdministration = factory(PublicAdministration::class)->create();
@@ -155,6 +187,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserWebsiteAccessChanged($this->user, $website, $accessType));
     }
 
+    /**
+     * Test user login event handler.
+     */
     public function testLogin(): void
     {
         $this->expectLogMessage(
@@ -171,6 +206,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserLogin($this->user));
     }
 
+    /**
+     * Test user logout event handler.
+     */
     public function testLogout(): void
     {
         $this->expectLogMessage(
@@ -187,6 +225,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserLogout($this->user));
     }
 
+    /**
+     * Test user suspended event handler.
+     */
     public function testSuspended(): void
     {
         $this->expectLogMessage(
@@ -203,6 +244,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserSuspended($this->user));
     }
 
+    /**
+     * Test user reactivated event handler.
+     */
     public function testReactivated(): void
     {
         $this->expectLogMessage(
@@ -219,6 +263,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserReactivated($this->user));
     }
 
+    /**
+     * Test user deleted event handler.
+     */
     public function testDeleted(): void
     {
         $this->expectLogMessage(
@@ -235,6 +282,9 @@ class UserEventsSubscriberTest extends TestCase
         event(new UserDeleted($this->user));
     }
 
+    /**
+     * Test user restored event handler.
+     */
     public function testRestored(): void
     {
         $this->expectLogMessage(
