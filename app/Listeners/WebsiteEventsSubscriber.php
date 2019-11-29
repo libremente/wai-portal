@@ -147,7 +147,7 @@ class WebsiteEventsSubscriber implements ShouldQueue
 //        //Notify website administrators
 //        $users = $website->getAdministrators($website);
 //        foreach ($users as $user) {
-//            $user->sendWebsiteArchivingNotification($website, $event->getWebsite());
+//            $user->sendWebsiteArchivingNotification($website, $event->getDaysLeft());
 //        }
 
         logger()->notice(
