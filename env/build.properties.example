@@ -38,6 +38,15 @@ SPID_SP_CERTIFICATE=
 
 CRON_TOKEN=verysecretcrontoken
 
+# Super admin user
+# ----------------
+
+APP_SUPER_ADMIN_NAME=
+APP_SUPER_ADMIN_FAMILY_NAME=
+APP_SUPER_ADMIN_FISCAL_NUMBER=
+APP_SUPER_ADMIN_EMAIL=
+APP_SUPER_ADMIN_PASSWORD=
+
 # Pending websites expirations
 # ----------------------------
 
@@ -137,7 +146,7 @@ MATOMO_ROOT_PASSWORD=Password
 MATOMO_ROOT_APIKEY=8aa23f3ca5903d451d1ff8eb947c7a8f
 
 # Matomo version
-MATOMO_VERSION=3.12.0
+MATOMO_VERSION=3.13.0
 
 # Matomo WAI theme version
 MATOMO_WAI_THEME_VERSION=0.3.1-alpha
