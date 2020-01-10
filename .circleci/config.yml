@@ -48,6 +48,7 @@ commands:
             bin/rx resources/data/config.yml tests/schemas/config_schema.yml
             bin/rx resources/data/faqs.yml tests/schemas/faqs_schema.yml
             bin/rx resources/data/tos.yml tests/schemas/tos_schema.yml
+            bin/rx resources/data/widgets.yml tests/schemas/widgets_schema.yml tests/schemas/widget.yml
 
   security:
     description: Check known security issues in php dependencies
@@ -86,15 +87,15 @@ commands:
       - run:
           name: Copy artifacts from docker container
           command: |
-            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/tests/Browser/screenshots/. tests/Browser/screenshots
-            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/tests/Browser/console/. tests/Browser/console
+            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/html/tests/Browser/screenshots/. tests/Browser/screenshots
+            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/html/tests/Browser/console/. tests/Browser/console
           when: on_fail
 
       - run:
           name: Copy artifacts from docker container
           command: |
-            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/tests/Browser/lighthouse/. tests/Browser/lighthouse
-            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/clover.xml clover.xml
+            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/html/tests/Browser/lighthouse/. tests/Browser/lighthouse
+            docker cp `docker-compose -f containers/docker-compose.yml --project-directory containers ps -q php-fpm`:/var/www/html/clover.xml clover.xml
 
       - store_artifacts:
           path: tests/Browser/console
