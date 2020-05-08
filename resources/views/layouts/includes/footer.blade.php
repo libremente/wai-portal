@@ -19,7 +19,7 @@
                                     <li class="list-inline-item ml-1">
                                         <a class="text-white" href="{{ $socialLink['url'] }}" aria-label="{{ $socialLink['name'] }}">
                                             <svg class="icon icon-sm icon-white align-top">
-                                                <use xlink:href="{{ asset('svg/sprite.svg') }}#it-{{ $socialLink['name'] }}"></use>
+                                                <use xlink:href="{{ asset('svg/sprite.svg#it') }}-{{ $socialLink['name'] }}"></use>
                                             </svg>
                                         </a>
                                     </li>
@@ -28,17 +28,19 @@
                         </div>
                     </div>
                 </div>
+                @if(config('site.footer_links.primary'))
                 <div class="footer-primary-menu row justify-content-between mb-4">
                     @foreach (config('site.footer_links.primary') as $footerPrimaryMenuItem)
-                    <div class="pb-2">
+                    <div class="p-2">
                         <h4>
                             <a href="{{ isset($footerPrimaryMenuItem['route']) ? route($footerPrimaryMenuItem['route']) : $footerPrimaryMenuItem['url'] }}"
-                                class="{{ isset($footerPrimaryMenuItem['url']) ? 'external-link' : '' }}">
+                                {!! isset($footerPrimaryMenuItem['url']) ? 'class="external-link" target="_blank" rel="noopener noreferrer"' : '' !!}>
                                 {{ __($footerPrimaryMenuItem['name']) }}</a>
                         </h4>
                     </div>
                     @endforeach
                 </div>
+                @endif
                 @include('layouts.includes.footer_band')
             </section>
         </div>

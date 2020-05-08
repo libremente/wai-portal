@@ -19,6 +19,7 @@
 clover.xml
 /database/testing.sqlite
 /storage/debugbar
+.lighthouseci/
 
 # related to local development
 TODO
@@ -26,6 +27,8 @@ TODO
 .idea
 .DS_Store
 .phpunit.result.cache
+.vscode
+.history
 
 # generated files
 .env

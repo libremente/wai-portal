@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\PublicAdministration;
 use App\Models\Website;
+use App\Traits\GetsLocalizedYamlContent;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Symfony\Component\Yaml\Yaml;
 
 class HomeController extends Controller
 {
+    use GetsLocalizedYamlContent;
+
     /**
      * Show the application home.
      *
@@ -38,10 +41,7 @@ class HomeController extends Controller
      */
     public function faq(): View
     {
-        $allFaqs = Yaml::parseFile(resource_path('data/faqs.yml'));
-        $currentLocale = app()->getLocale();
-        $faqsLocale = array_key_exists($currentLocale, $allFaqs) ? $currentLocale : config('app.fallback_locale');
-        $faqs = $allFaqs[$faqsLocale];
+        $faqs = $this->getLocalizedYamlContent('faqs');
         $themes = array_unique(Arr::flatten(array_map(function ($themes) {
             return explode(' ', $themes);
         }, Arr::pluck($faqs, 'themes'))));
@@ -60,14 +60,26 @@ class HomeController extends Controller
     }
 
     /**
+     * Show the "how to join" page.
+     *
+     * @return View the view
+     */
+    public function howToJoin(): View
+    {
+        $steps = $this->getLocalizedYamlContent('how-to-join-steps');
+
+        return view('pages.how-to-join')->with(compact('steps'));
+    }
+
+    /**
      * Show the application open data page.
      *
      * @return View the view
      */
-    public function openData(): View
-    {
-        return view('pages.open-data');
-    }
+    // public function openData(): View
+    // {
+    //     return view('pages.open-data');
+    // }
 
     /**
      * Show the application privacy info.
@@ -76,7 +88,9 @@ class HomeController extends Controller
      */
     public function privacy(): View
     {
-        return view('pages.privacy');
+        $privacy = $this->getLocalizedYamlContent('privacy');
+
+        return view('pages.privacy')->with(compact('privacy'));
     }
 
     /**
@@ -86,6 +100,8 @@ class HomeController extends Controller
      */
     public function legalNotes(): View
     {
-        return view('pages.legal_notes');
+        $legal = $this->getLocalizedYamlContent('legal');
+
+        return view('pages.legal_notes')->with(compact('legal'));
     }
 }

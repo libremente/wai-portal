@@ -13,8 +13,10 @@ required:
               name_short: "//str"
               link: "//str"
               logo: "//str"
+              mail: "//str"
           privacy_policy: "//str"
           logo: "//str"
+          logo_raster: "//str"
           menu_items:
             type: "//rec"
             required:
@@ -45,11 +47,16 @@ required:
                 url: "//str"
               optional:
                 class: "//str"
+          kb:
+            type: "//rec"
+            required:
+              name: "//str"
+              link: "//str"
         optional:
           pill: "//str"
           footer_links:
             type: "//rec"
-            required:
+            optional:
               primary:
                 type: "//arr"
                 contents:
@@ -59,7 +66,6 @@ required:
                   optional:
                     route: "//str"
                     url: "//str"
-            optional:
               secondary:
                 type: "//arr"
                 contents:
@@ -76,9 +82,14 @@ required:
               required:
                 name: "//str"
                 url: "//str"
-          trackers:
-            type: "//map"
-            values: "//str"
+          highlight:
+            type: "//rec"
+            required:
+              public-playground: "//str"
+              staging: "//str"
+              local: "//str"
+            optional:
+              production: "//str"
 optional:
   en:
     type: "//rec"
@@ -124,6 +135,11 @@ optional:
                 url: "//str"
               optional:
                 class: "//str"
+          kb:
+            type: "//rec"
+            required:
+              name: "//str"
+              link: "//str"
         optional:
           pill: "//str"
           footer_links:
@@ -155,6 +171,10 @@ optional:
               required:
                 name: "//str"
                 url: "//str"
-          trackers:
-            type: "//map"
-            values: "//str"
+          highlight:
+            type: "//rec"
+            required:
+              public-plauground: "//str"
+              staging: "//str"
+            optional:
+              production: "//str"

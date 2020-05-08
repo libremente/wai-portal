@@ -83,7 +83,7 @@ class ProcessPendingWebsitesTest extends TestCase
             return json_decode($event->getWebsiteJson())->slug === $website->slug;
         });
 
-        $purgedUser = User::findByFiscalNumber($user->fiscal_number);
+        $purgedUser = User::findNotSuperAdminByFiscalNumber($user->fiscal_number);
         $this->assertFalse($purgedUser->hasAnalyticsServiceAccount());
 
         $this->expectException(CommandErrorException::class);
@@ -161,7 +161,7 @@ class ProcessPendingWebsitesTest extends TestCase
         $publicAdministration = factory(PublicAdministration::class)->create();
         $publicAdministration->users()->sync($user->id);
         $website = factory(Website::class)->make([
-            'type' => WebsiteType::PRIMARY,
+            'type' => WebsiteType::INSTITUTIONAL,
             'public_administration_id' => $publicAdministration->id,
         ]);
 
@@ -221,7 +221,7 @@ class ProcessPendingWebsitesTest extends TestCase
         $publicAdministration = factory(PublicAdministration::class)->state('active')->create();
         $publicAdministration->users()->sync([$userAdmin->id, $userWrite->id, $userView->id, $userNoAccess->id]);
         $website = factory(Website::class)->make([
-            'type' => WebsiteType::SECONDARY,
+            'type' => WebsiteType::SERVICE,
             'public_administration_id' => $publicAdministration->id,
         ]);
 
@@ -274,7 +274,7 @@ class ProcessPendingWebsitesTest extends TestCase
         $publicAdministration = factory(PublicAdministration::class)->create();
         $publicAdministration->users()->sync($user->id);
         $website = factory(Website::class)->create([
-            'type' => WebsiteType::PRIMARY,
+            'type' => WebsiteType::INSTITUTIONAL,
             'public_administration_id' => $publicAdministration->id,
         ]);
 

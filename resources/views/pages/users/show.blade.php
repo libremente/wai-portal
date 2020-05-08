@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-lg-8 d-flex">
             @component('layouts.components.box')
-            <h4 class="text-uppercase m-0">{{ __('anagrafica') }}</h4>
+            <h4 class="text-uppercase m-0">{{ __('Anagrafica') }}</h4>
             <div class="mt-5 pt-5">
                 <div class="form-row">
                     <div class="form-group col-md-6">
@@ -82,6 +82,14 @@
                     aria-disabled="true">
                     {{ __('Rispedisci invito') }}
                 </a>
+                <p class="mt-3 font-weight-semibold">
+                    {{ __("Se non accetta l'invito, l'utente sarà rimosso fra :purgeDays.",[
+                        'purgeDays' => trans_choice(
+                                "{1} :count giorno|[2,*] :count giorni",
+                                (int) config('auth.verification.purge') - $user->created_at->diffInDays(now())
+                            )
+                    ]) }}
+                </p>
                 @endif
                 @if ($user->status->is(UserStatus::ACTIVE) && !$user->is($authUser))
                 <h5 class="section-header">{{ __('sospensione') }}</h5>
@@ -127,7 +135,7 @@
             <div>
                 <p class="text-serif">
                     {{ __("Hai dubbi sul significato dello stato dell'utente?") }}
-                    <a href={{ route('faq') }}>{{ __('Consulta le FAQ') }}</a>
+                    <a href="{{ route('faq') }}">{{ __('Consulta le FAQ') }}</a>
                 </p>
             </div>
             @endcomponent
@@ -152,7 +160,9 @@
             <div class="col">
                 <p class="mt-5 mb-0 text-serif">
                     {{ __("Vuoi saperne di più su ruoli e permessi?") }}
-                    <a href={{ route('faq') }}>{{ __('Consulta le FAQ') }}</a>
+                    <a class="external-link" rel="noopener noreferrer" href="{{ config('site.kb.link') }}utenti/inserimento.html">
+                        {{ __('Leggi la guida') }}
+                    </a>
                 </p>
             </div>
             @endforeach

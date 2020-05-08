@@ -7,15 +7,9 @@ use App\Enums\UserStatus;
 use App\Events\User\UserRestored;
 use App\Events\User\UserUpdated;
 use App\Events\User\UserUpdating;
-use App\Notifications\ExpiredInvitationLinkVisitedEmail;
-use App\Notifications\PrimaryWebsiteNotTrackingUserEmail;
-use App\Notifications\VerifyEmail;
-use App\Notifications\WebsiteActivatedUserEmail;
-use App\Notifications\WebsiteArchivedUserEmail;
-use App\Notifications\WebsiteArchivingUserEmail;
-use App\Notifications\WebsitePurgingUserEmail;
 use App\Traits\HasAnalyticsServiceAccount;
 use App\Traits\HasWebsitePermissions;
+use App\Traits\SendsNotificationsToUser;
 use BenSampo\Enum\Traits\CastsEnums;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -24,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Silber\Bouncer\Database\HasRolesAndAbilities;
 
@@ -38,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasRolesAndAbilities;
     use HasWebsitePermissions;
     use HasAnalyticsServiceAccount;
+    use SendsNotificationsToUser;
     use SoftDeletes;
 
     /**
@@ -79,6 +73,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_access_at' => 'datetime',
         'email_verified_at' => 'datetime',
         'status' => 'integer',
+        'preferences' => 'array',
     ];
 
     /**
@@ -102,27 +97,39 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Find a User instance by fiscal number.
+     * Find a User instance by fiscal number with UserRole::SUPER_ADMIN role.
      *
      * @param string $fiscalNumber fiscal number
      *
      * @return User|null the User or null if not found
      */
-    public static function findByFiscalNumber(string $fiscalNumber): ?User
+    public static function findSuperAdminByFiscalNumber(string $fiscalNumber): ?User
     {
-        return User::where('fiscal_number', $fiscalNumber)->first();
+        return static::where('fiscal_number', $fiscalNumber)->whereIs(UserRole::SUPER_ADMIN)->first();
     }
 
     /**
-     * Find a deleted User instance by fiscal number.
+     * Find a User instance by fiscal number without UserRole::SUPER_ADMIN role.
      *
      * @param string $fiscalNumber fiscal number
      *
      * @return User|null the User or null if not found
      */
-    public static function findTrashedByFiscalNumber(string $fiscalNumber): ?User
+    public static function findNotSuperAdminByFiscalNumber(string $fiscalNumber): ?User
     {
-        return User::onlyTrashed()->where('fiscal_number', $fiscalNumber)->first();
+        return static::where('fiscal_number', $fiscalNumber)->whereIsNot(UserRole::SUPER_ADMIN)->first();
+    }
+
+    /**
+     * Find a deleted User instance by fiscal number without UserRole::SUPER_ADMIN role.
+     *
+     * @param string $fiscalNumber fiscal number
+     *
+     * @return User|null the User or null if not found
+     */
+    public static function findTrashedNotSuperAdminByFiscalNumber(string $fiscalNumber): ?User
+    {
+        return User::onlyTrashed()->where('fiscal_number', $fiscalNumber)->whereIsNot(UserRole::SUPER_ADMIN)->first();
     }
 
     /**
@@ -143,18 +150,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getRouteKeyName(): string
     {
         return 'uuid';
-    }
-
-    /**
-     * Get recipient for mail notifications.
-     *
-     * @param Notification $notification the notification
-     *
-     * @return array|string the recipient
-     */
-    public function routeNotificationForMail($notification)
-    {
-        return empty($this->full_name) ? $this->email : [$this->email, $this->full_name];
     }
 
     /**
@@ -196,7 +191,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getFullNameAttribute(): string
     {
-        return $this->name ? implode(' ', [trim($this->name), trim($this->family_name)]) : $this->fiscal_number;
+        return $this->name ? implode(' ', [trim($this->name), trim($this->family_name)]) : $this->email;
     }
 
     /**
@@ -238,16 +233,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Configure information for notifications over mail channel.
-     *
-     * @param PublicAdministration|null $publicAdministration the public administration the user belongs to or null if user is registering a new Public Administration
-     */
-    public function sendEmailVerificationNotification(?PublicAdministration $publicAdministration = null): void
-    {
-        $this->notify(new VerifyEmail($publicAdministration));
-    }
-
-    /**
      * Check if the current password is expired.
      *
      * @return bool
@@ -283,65 +268,5 @@ class User extends Authenticatable implements MustVerifyEmail
         });
 
         return 1 === $activeSuperAdministrators->count() && $this->is($activeSuperAdministrators->first());
-    }
-
-    /**
-     * Notify website activated.
-     *
-     * @param Website $website the website
-     */
-    public function sendWebsiteActivatedNotification(Website $website): void
-    {
-        $this->notify(new WebsiteActivatedUserEmail($website));
-    }
-
-    /**
-     * Notify website scheduled for purging.
-     *
-     * @param Website $website the website
-     */
-    public function sendWebsitePurgingNotification(Website $website): void
-    {
-        $this->notify(new WebsitePurgingUserEmail($website));
-    }
-
-    /**
-     * Notify website scheduled for archiving.
-     *
-     * @param Website $website the website
-     * @param int $daysLeft the number of days left before automatic archiving
-     */
-    public function sendWebsiteArchivingNotification(Website $website, int $daysLeft): void
-    {
-        $this->notify(new WebsiteArchivingUserEmail($website, $daysLeft));
-    }
-
-    /**
-     * Notify website archived.
-     *
-     * @param Website $website the website
-     * @param bool $manual whether the website was archived manually
-     */
-    public function sendWebsiteArchivedNotification(Website $website, bool $manual): void
-    {
-        $this->notify(new WebsiteArchivedUserEmail($website, $manual));
-    }
-
-    /**
-     * Notify primary website not tracking.
-     */
-    public function sendPrimaryWebsiteNotTrackingNotification(): void
-    {
-        $this->notify(new PrimaryWebsiteNotTrackingUserEmail());
-    }
-
-    /**
-     * Notify an expired verification URL was used.
-     *
-     * @param User $user the user the expired URL refers to
-     */
-    public function sendExpiredInvitationLinkVisited(User $user): void
-    {
-        $this->notify(new ExpiredInvitationLinkVisitedEmail($user));
     }
 }

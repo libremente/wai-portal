@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-lg-8 d-flex">
             @component('layouts.components.box')
-            <h4 class="text-uppercase m-0">{{ __('anagrafica') }}</h4>
+            <h4 class="text-uppercase m-0">{{ __('Anagrafica') }}</h4>
             <div class="mt-5 pt-5">
                 <div class="form-row">
                     <div class="form-group col-md-6">
@@ -110,7 +110,7 @@
             <div>
                 <p class="text-serif">
                     {{ __("Hai dubbi sul significato dello stato dell'utente?") }}
-                    <a href={{ route('faq') }}>{{ __('Consulta le FAQ') }}</a>
+                    <a href="{{ route('faq') }}">{{ __('Consulta le FAQ') }}</a>
                 </p>
             </div>
             @endcomponent
@@ -132,7 +132,7 @@
             <div class="col">
                 <p class="mt-5 mb-0 text-serif">
                     {{ __("Hai dubbi sul significato del ruolo dell'utente?") }}
-                    <a href={{ route('faq') }}>{{ __('Consulta le FAQ') }}</a>
+                    <a href="{{ route('faq') }}">{{ __('Consulta le FAQ') }}</a>
                 </p>
             </div>
         </div>

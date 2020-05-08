@@ -7,10 +7,16 @@ Breadcrumbs::for('home', function ($trail) {
     $trail->push(config('app.name'), route('home'));
 });
 
+// Web Analytics Italia > How to join
+Breadcrumbs::for('how-to-join', function ($trail) {
+    $trail->parent('home');
+    $trail->push(__('Come partecipare'), route('how-to-join'));
+});
+
 // Web Analytics Italia > FAQ
 Breadcrumbs::for('faq', function ($trail) {
     $trail->parent('home');
-    $trail->push(__('FAQ - Domande ricorrenti'), route('faq'));
+    $trail->push(__('FAQ - Domande frequenti'), route('faq'));
 });
 
 // Web Analytics Italia > Open data
@@ -123,7 +129,7 @@ Breadcrumbs::for('admin.dashboard', function ($trail) {
 
 // Web Analytics Italia > Super admin dashboard > Logs view
 Breadcrumbs::for('admin.logs.show', function ($trail) {
-    $trail->parent('dashboard');
+    $trail->parent('admin.dashboard');
     $trail->push(__('Visualizzazione log'), route('admin.logs.show'));
 });
 

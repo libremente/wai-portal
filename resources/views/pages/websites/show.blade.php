@@ -65,10 +65,10 @@
                     {{ __('Per impostare il tracciamento, usa il codice che trovi in questa pagina.') }}
                 </p>
                 <p class="text-serif">
-                    {{ __("Hai bisogno di aiuto con l'attivazione?") }} <a href={{ route('faq') }}>{{ __('Consulta le FAQ') }}</a>
+                    {{ __("Hai bisogno di aiuto con l'attivazione?") }} <a href="{{ route('faq') }}">{{ __('Consulta le FAQ') }}</a>
                 </p>
                 @endif
-                @elseif (!$website->type->is(WebsiteType::PRIMARY))
+                @elseif (!$website->type->is(WebsiteType::INSTITUTIONAL))
                 @can(UserPermission::MANAGE_WEBSITES)
                 @if ($website->status->is(WebsiteStatus::ACTIVE))
                 <h5 class="section-header">{{ __('archiviazione') }}</h5>
@@ -115,7 +115,7 @@
             <div>
                 <p class="text-serif">
                     {{ __('Hai dubbi sul significato dello stato del sito?') }}
-                    <a href={{ route('faq') }}>{{ __('Consulta le FAQ') }}</a>
+                    <a href="{{ route('faq') }}">{{ __('Consulta le FAQ') }}</a>
                 </p>
             </div>
             @endcomponent
@@ -171,7 +171,7 @@
                     href="{{ route('analytics.service.login', ['websiteAnalyticsId' => $website->analytics_id]) }}">
                     {{ __('Vai alla dashboard') }}
                     <svg class="icon icon-primary ml-2 align-middle">
-                        <use xlink:href="{{ asset('svg/sprite.svg') }}#it-arrow-right"></use>
+                        <use xlink:href="{{ asset('svg/sprite.svg#it-arrow-right') }}"></use>
                     </svg>
                 </a>
             </p>
@@ -191,7 +191,7 @@
     @endif
     @can(UserPermission::MANAGE_WEBSITES)
     @component('layouts.components.box', ['classes' => 'mt-0'])
-    <h4 class="text-uppercase mb-5">{{ __('permessi degli utenti') }}</h4>
+    <h4 class="text-uppercase mb-5">{{ __('Permessi degli utenti') }}</h4>
     @include('partials.datatable')
     <div class="mt-4 text-center text-sm-left">
     @component('layouts.components.link_button', [

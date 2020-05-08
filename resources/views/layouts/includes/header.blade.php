@@ -2,6 +2,7 @@
 <div class="it-header-wrapper" role="banner">
     @include('layouts.includes.skiplinks')
     @include('layouts.includes.slim_header')
+    @include('layouts.includes.highlight_bar')
     <div class="it-nav-wrapper {{ implode(' ', $classes ?? []) }}">
         <div class="it-header-center-wrapper">
             <div class="container">
@@ -28,7 +29,7 @@
                                         <li class="ml-3">
                                             <a href="{{ $socialLink['url'] }}" aria-label="{{ $socialLink['name'] }}">
                                                 <svg class="icon">
-                                                    <use xlink:href="{{ asset('svg/sprite.svg') }}#it-{{ $socialLink['name'] }}"></use>
+                                                    <use xlink:href="{{ asset('svg/sprite.svg#it') }}-{{ $socialLink['name'] }}"></use>
                                                 </svg>
                                             </a>
                                         </li>

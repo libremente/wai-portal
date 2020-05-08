@@ -15,7 +15,7 @@
                         <div class="input-group-text"><svg class="icon icon-sm"><use xlink:href="{{ asset('svg/sprite.svg#it-mail') }}"></use></svg></div>
                     </div>
                     <label for="email">{{ __('Indirizzo email di lavoro') }}</label>
-                    <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" id="email" name="email" value="{{ old('email') }}" maxlength="255" aria-labelledby="email-input-help" aria-required="true" required>
+                    <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" id="email" name="email" value="{{ old('email') }}" maxlength="75" aria-describedby="email-input-help" aria-required="true" required>
                     @error('email')
                     <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                     @else
@@ -29,8 +29,11 @@
             <div id="tos" class="callout callout-more note">
                 <div class="callout-title">
                     <svg class="icon icon-primary"><use xlink:href="{{ asset('svg/sprite.svg#it-clip') }}"></use></svg>
-                    <span>{{ __('condizioni del servizio') }}</span>
+                    <span>{{ __('termini del servizio') }}</span>
                 </div>
+                @markdown($tos)
+                {{--
+                Use this snippet for longer texts
                 @excerpt($tos)
                 <div class="collapse-div">
                     <div class="collapse-header" id="show-more">
@@ -44,12 +47,13 @@
                         </div>
                     </div>
                 </div>
+                --}}
             </div>
         </div>
         <div class="form-row">
             <div class="form-check">
-                <input class="form-control form-check-input" class="{{ $errors->has('accept_terms') ? ' is-invalid' : '' }}" type="checkbox" id="accept_terms" name="accept_terms" aria-required="true" required>
-                <label class="form-check-label" for="accept_terms">{{ __('Accetto le condizioni del servizio') }}</label>
+                <input class="form-control form-check-input{{ $errors->has('accept_terms') ? ' is-invalid' : '' }}" type="checkbox" id="accept_terms" name="accept_terms" aria-required="true" required>
+                <label class="form-check-label" for="accept_terms">{{ __('Accetto i termini del servizio') }}</label>
                 <div class="invalid-feedback">{{ __('validation.accepted', ['attribute' => __('validation.attributes.accept_terms')]) }}</div>
             </div>
         </div>

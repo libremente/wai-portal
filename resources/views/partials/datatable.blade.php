@@ -5,7 +5,7 @@
         <div class="col-md-4 form-group mb-2 mb-md-0">
             <div class="input-group">
                 <label for="datatables-search">{{ ucfirst($datatableOptions['searching']['label']) }}</label>
-                <input type="search" class="form-control" id="datatables-search" maxlength="255">
+                <input type="search" class="form-control" id="datatables-search" maxlength="50">
                 <div class="input-group-append">
                     <div class="input-group-text"><svg class="icon icon-sm"><use xlink:href="{{ asset('svg/sprite.svg#it-search') }}"></use></svg></div>
                 </div>
@@ -35,13 +35,13 @@
     @endisset
     <table class="Datatable table responsive{{ ($datatableOptions['textWrap'] ?? false) ? '' : ' nowrap' }}"
         @if (!empty($datatableOptions['serverSide']))
-        data-dt-server-side={{ $datatableOptions['serverSide'] ? 'true' : 'false' }}
+        data-dt-server-side="{{ $datatableOptions['serverSide'] ? 'true' : 'false' }}"
         @endif
         @if (!empty($datatableOptions['processing']))
-        data-dt-processing={{ $datatableOptions['processing'] ? 'true' : 'false' }}
+        data-dt-processing="{{ $datatableOptions['processing'] ? 'true' : 'false' }}"
         @endif
         @if (!empty($datatableOptions['searching']))
-        data-dt-searching={{ $datatableOptions['searching'] ? 'true' : 'false' }}
+        data-dt-searching="{{ $datatableOptions['searching'] ? 'true' : 'false' }}"
         @endif
         data-dt-source="{{ url($source) }}"
         data-dt-columns="{{ json_encode($columns) }}"

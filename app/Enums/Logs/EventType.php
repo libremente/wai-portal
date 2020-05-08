@@ -206,6 +206,31 @@ class EventType extends Enum implements LocalizedEnum
     public const EXPIRED_USER_INVITATION_USED = 38;
 
     /**
+     * Password reset process completed event.
+     */
+    public const USER_PASSWORD_RESET_COMPLETED = 39;
+
+    /**
+     * User updated event.
+     */
+    public const USER_UPDATED = 40;
+
+    /**
+     * Website updated event.
+     */
+    public const WEBSITE_UPDATED = 41;
+
+    /**
+     * Closed beta whitelist update failed event.
+     */
+    public const CLOSED_BETA_WHITELIST_UPDATE_FAILED = 42;
+
+    /**
+     * Closed beta whitelist update failed event.
+     */
+    public const PURGE_PENDING_INVITATIONS_COMPLETED = 43;
+
+    /**
      * Mail sent event.
      */
     public const MAIL_SENT = 99;

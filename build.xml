@@ -35,24 +35,33 @@
                     <token key="LOG_STACK_CHANNELS" value="${LOG_STACK_CHANNELS}" />
                     <token key="LOG_SLACK_WEBHOOK_URL" value="${LOG_SLACK_WEBHOOK_URL}" />
                     <token key="LOG_SLACK_USERNAME" value="${LOG_SLACK_USERNAME}" />
-                    <token key="APP_VERSION" value="${APP_VERSION}" />
+                    <token key="APP_CLOSED_BETA_ENABLED" value="${APP_CLOSED_BETA_ENABLED}" />
                     <token key="APP_SUPER_ADMIN_NAME" value="${APP_SUPER_ADMIN_NAME}" />
                     <token key="APP_SUPER_ADMIN_FAMILY_NAME" value="${APP_SUPER_ADMIN_FAMILY_NAME}" />
                     <token key="APP_SUPER_ADMIN_FISCAL_NUMBER" value="${APP_SUPER_ADMIN_FISCAL_NUMBER}" />
                     <token key="APP_SUPER_ADMIN_EMAIL" value="${APP_SUPER_ADMIN_EMAIL}" />
                     <token key="APP_SUPER_ADMIN_PASSWORD" value="${APP_SUPER_ADMIN_PASSWORD}" />
+                    <token key="CLOSED_BETA_WHITELIST_WEBHOOK_CLIENT_SECRET" value="${CLOSED_BETA_WHITELIST_WEBHOOK_CLIENT_SECRET}" />
+                    <token key="CLOSED_BETA_WHITELIST_REPOSITORY_FULL_NAME" value="${CLOSED_BETA_WHITELIST_REPOSITORY_FULL_NAME}" />
+                    <token key="CLOSED_BETA_WHITELIST_REPOSITORY_BRANCH" value="${CLOSED_BETA_WHITELIST_REPOSITORY_BRANCH}" />
+                    <token key="CLOSED_BETA_WHITELIST_REPOSITORY_FILE_NAME" value="${CLOSED_BETA_WHITELIST_REPOSITORY_FILE_NAME}" />
                     <token key="CRON_TOKEN" value="${CRON_TOKEN}" />
+                    <token key="TRACKING_MATOMO_ID" value="${TRACKING_MATOMO_ID}" />
+                    <token key="TRACKING_GA_ID" value="${TRACKING_GA_ID}" />
+                    <token key="TRACKING_HOTJAR_ID" value="${TRACKING_HOTJAR_ID}" />
                     <token key="PENDING_WEBSITE_WARNING" value="${PENDING_WEBSITE_WARNING}" />
                     <token key="PENDING_WEBSITE_REMOVE" value="${PENDING_WEBSITE_REMOVE}" />
                     <token key="ARCHIVING_WEBSITE_WARNING" value="${ARCHIVING_WEBSITE_WARNING}" />
                     <token key="ARCHIVING_WEBSITE_ARCHIVE" value="${ARCHIVING_WEBSITE_ARCHIVE}" />
-                    <token key="ARCHIVING_WEBSITE_NOTIFICATION_WEEK_DAY" value="${ARCHIVING_WEBSITE_NOTIFICATION_WEEK_DAY}" />
+                    <token key="ARCHIVING_WEBSITE_NOTIFICATION_INTERVAL" value="${ARCHIVING_WEBSITE_NOTIFICATION_INTERVAL}" />
+                    <token key="PRIMARY_WEBSITE_NOT_TRACKING_NOTIFICATION_WEEK_DAY" value="${PRIMARY_WEBSITE_NOT_TRACKING_NOTIFICATION_WEEK_DAY}" />
                     <token key="ARCHIVING_WEBSITE_DAILY_NOTIFICATION" value="${ARCHIVING_WEBSITE_DAILY_NOTIFICATION}" />
                     <token key="ELASTICSEARCH_VERSION" value="${ELASTICSEARCH_VERSION}" />
                     <token key="ELASTICSEARCH_USER" value="${ELASTICSEARCH_USER}" />
                     <token key="ELASTICSEARCH_PASSWORD" value="${ELASTICSEARCH_PASSWORD}" />
                     <token key="ELASTICSEARCH_INDEX_PREFIX" value="${ELASTICSEARCH_INDEX_PREFIX}" />
-                    <token key="ELASTICSEARCH_INDEX_NAME" value="${ELASTICSEARCH_INDEX_PREFIX}-${ELASTICSEARCH_INDEX_NAME}" />
+                    <token key="ELASTICSEARCH_INDEX_TEMPLATE_NAME" value="${ELASTICSEARCH_INDEX_PREFIX}-${ELASTICSEARCH_INDEX_NAME}" />
+                    <token key="ELASTICSEARCH_INDEX_NAME" value="${ELASTICSEARCH_INDEX_PREFIX}-${ELASTICSEARCH_INDEX_NAME}-${env.APP_ENV}" />
                     <token key="ELASTICSEARCH_IGNORE_EXCEPTIONS" value="${ELASTICSEARCH_IGNORE_EXCEPTIONS}" />
                     <token key="ELASTICSEARCH_SEARCH_TEMPLATE_NAME" value="${ELASTICSEARCH_SEARCH_TEMPLATE_NAME}" />
                     <token key="KIBANA_VERSION" value="${KIBANA_VERSION}" />
@@ -81,8 +90,21 @@
                     <token key="PEC_USERNAME" value="${PEC_USERNAME}" />
                     <token key="PEC_PASSWORD" value="${PEC_PASSWORD}" />
                     <token key="PEC_ENCRYPTION" value="${PEC_ENCRYPTION}" />
+                    <token key="SPID_SP_ENTITY_ID" value="${SPID_SP_ENTITY_ID}" />
+                    <token key="SPID_SP_ACS_INDEX" value="${SPID_SP_ACS_INDEX}" />
+                    <token key="SPID_SP_ATTRIBUTES_INDEX" value="${SPID_SP_ATTRIBUTES_INDEX}" />
                     <token key="SPID_SP_PRIVATE_KEY" value="${SPID_SP_PRIVATE_KEY}" />
                     <token key="SPID_SP_CERTIFICATE" value="${SPID_SP_CERTIFICATE}" />
+                    <token key="SPID_TESTENV_ENABLED" value="${SPID_TESTENV_ENABLED}" />
+                    <token key="SPID_TESTENV_ENTITY_ID" value="${SPID_TESTENV_ENTITY_ID}" />
+                    <token key="SPID_TESTENV_SSO" value="${SPID_TESTENV_SSO}" />
+                    <token key="SPID_TESTENV_SLO" value="${SPID_TESTENV_SLO}" />
+                    <token key="SPID_TESTENV_CERT" value="${SPID_TESTENV_CERT}" />
+                    <token key="SPID_VALIDATOR_IDP_ENABLED" value="${SPID_VALIDATOR_IDP_ENABLED}" />
+                    <token key="SPID_VALIDATOR_IDP_ENTITY_ID" value="${SPID_VALIDATOR_IDP_ENTITY_ID}" />
+                    <token key="SPID_VALIDATOR_IDP_SSO" value="${SPID_VALIDATOR_IDP_SSO}" />
+                    <token key="SPID_VALIDATOR_IDP_SLO" value="${SPID_VALIDATOR_IDP_SLO}" />
+                    <token key="SPID_VALIDATOR_IDP_CERT" value="${SPID_VALIDATOR_IDP_CERT}" />
                     <token key="ANALYTICS_ADMIN_TOKEN" value="${MATOMO_ROOT_APIKEY}" />
                     <token key="ANALYTICS_API_BASE_URL" value="${ANALYTICS_API_BASE_URL}" />
                     <token key="ANALYTICS_API_SSL_VERIFY" value="${ANALYTICS_API_SSL_VERIFY}" />
@@ -267,6 +289,7 @@
                 <exec command="docker cp phpunit.dusk.xml application-container:${APP_CODE_PATH_CONTAINER}" checkreturn="true"/>
                 <exec command="docker cp phpunit.xml application-container:${APP_CODE_PATH_CONTAINER}" checkreturn="true"/>
                 <exec command="docker cp .node-version application-container:${APP_CODE_PATH_CONTAINER}" checkreturn="true"/>
+                <exec command="docker cp lighthouserc.json application-container:${APP_CODE_PATH_CONTAINER}" checkreturn="true"/>
             </then>
             <else>
                 <echo msg="Create log directories if needed..."/>
@@ -421,30 +444,31 @@
                 <fail message="Testing not allowed in environments other than local or testing"/>
             </then>
         </if>
-        <!-- Set testing database file -->
-        <echo msg="Setting testing database file..."/>
+        <!-- Set testing database files and permissions -->
+        <echo msg="Setting testing files and permissions..."/>
         <exec command="docker-compose exec -u www-data php-fpm bash -c 'rm -f database/testing.sqlite; touch database/testing.sqlite'" dir="containers"/>
         <exec command="docker-compose exec php-fpm chown -R www-data:www-data tests" dir="containers" checkreturn="true"/>
         <!-- Execute phpunit to run unit tests -->
         <echo msg="Running unit tests [PHPUnit]..."/>
         <exec command="docker-compose exec -u www-data php-fpm vendor/phpunit/phpunit/phpunit" dir="containers" passthru="true" checkreturn="true"/>
         <!-- Install lighthouse -->
-        <exec command="docker-compose exec -u www-data php-fpm lighthouse-ci --version" dir="containers" returnProperty="checkLighthouse"/>
+        <exec command="docker-compose exec -u www-data php-fpm lhci --version" dir="containers" returnProperty="checkLighthouse"/>
         <if>
             <not><equals arg1="${checkLighthouse}" arg2="0"/></not>
             <then>
                 <echo msg="Installing lighthouse..."/>
-                <exec command="docker-compose exec php-fpm bash -c 'node-build $(cat .node-version) /usr/local'" dir="containers" checkreturn="true"/>
-                <exec command="docker-compose exec php-fpm npm install -g lighthouse-ci" dir="containers" checkreturn="true"/>
+                <exec command="docker-compose exec php-fpm bash -c 'node-build $(cat .node-version) /usr/local/node'" dir="containers" checkreturn="true"/>
+                <exec command="docker-compose exec php-fpm npm install -g @lhci/cli" dir="containers" checkreturn="true"/>
             </then>
         </if>
         <!-- Execute dusk to run browser tests -->
         <echo msg="Running browser tests [Laravel Dusk]..."/>
-        <delete>
+        <delete quiet="true">
             <fileset dir="tests/Browser/lighthouse">
                 <include name="report-*"/>
             </fileset>
         </delete>
+        <delete dir="tests/Browser/lighthouse/.lighthouseci" quiet="true"/>
         <exec command="docker-compose exec -u www-data php-fpm php artisan dusk" dir="containers" passthru="true" checkreturn="true"/>
         <!-- Restore the Users/Websites indexes after tests -->
         <if>
@@ -562,6 +586,7 @@
             --build-arg MATOMO_PLUGIN_PROTECTTRACKID_VERSION=${MATOMO_PLUGIN_PROTECTTRACKID_VERSION}
             --build-arg MATOMO_PLUGIN_CUSTOMDIMENSIONS_VERSION=${MATOMO_PLUGIN_CUSTOMDIMENSIONS_VERSION}
             --build-arg MATOMO_PLUGIN_LOGINFILTERIP_VERSION=${MATOMO_PLUGIN_LOGINFILTERIP_VERSION}
+            --build-arg MATOMO_PLUGIN_TRACKERHOSTNAME_VERSION=${MATOMO_PLUGIN_TRACKERHOSTNAME_VERSION}
             -t matomo-codebase:${MATOMO_IMAGE_TAG} ."
             dir="containers/matomo" passthru="true" checkreturn="true"/>
         <exec command="docker build --no-cache --rm -f Dockerfile.matomo

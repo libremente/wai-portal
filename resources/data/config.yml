@@ -5,9 +5,27 @@ it:
       name_short: AGID
       link: https://www.agid.gov.it
       logo: /images/agid-logo.svg
+      mail: wai@agid.gov.it
     privacy_policy: /privacy
     logo: /images/wai-logo.svg
-    pill: alpha
+    logo_raster: /images/wai-logo.png
+    pill: beta
+    highlight:
+      production: |
+        **Web Analytics Italia** è in una fase di beta chiusa.
+        [Cosa significa?](https://webanalytics.italia.it/faq#beta-chiusa)
+      public-playground: |
+        Questo è l'ambiente **public playground**. Ogni settimana il sistema
+        viene automaticamente resettato. [Maggiori
+        informazioni](https://webanalytics.italia.it/faq#public-playground).
+      staging: |
+        Questo è l'ambiente di **staging**. L'istanza potrebbe essere resettata
+        senza preavviso.
+      local: |
+        Questo è l'ambiente di sviluppo locale di **Web Analytics Italia**.
+    kb:
+      name: Guida utente Web Analytics Italia
+      link: https://docs.italia.it/agid/wai/wai-user-guide-docs/it/stabile/
 
     menu_items:
       primary:
@@ -18,12 +36,12 @@ it:
         - name: Utenti
           route: users.index
       secondary:
-        - name: Open data
-          route: open-data
+        - name: Come partecipare
+          route: how-to-join
+        # - name: Open data
+        #   route: open-data
         - name: FAQ
           route: faq
-        - name: Contattaci
-          route: contacts
 
     slim_header_links:
       - name: Piano triennale
@@ -43,19 +61,23 @@ it:
 
     footer_links:
       primary:
+        - name: Come partecipare
+          route: how-to-join
         - name: Domande frequenti
           route: faq
-        - name: Open data
-          route: open-data
-        - name: Contattaci
-          route: contacts
-        - name: Dichiarazione di accessibilità
-          url: https://form.agid.gov.it/
+        # - name: Open data
+        #   route: open-data
+        - name: Guida utente
+          url: https://docs.italia.it/agid/wai/wai-user-guide-docs/it/stabile/
+        # - name: Dichiarazione di accessibilità
+        #   url: https://form.agid.gov.it/
       secondary:
-        - name: Privacy policy
+        - name: Privacy
           route: privacy
         - name: Note legali
           route: legal-notes
+        - name: Contattaci
+          route: contacts
 
     social:
       - name: facebook
@@ -65,8 +87,4 @@ it:
       - name: youtube
         url: https://www.youtube.com/channel/UCxJmOWf__YcLgB19gy5dGQQ
       - name: medium
-        url: https://medium.com/designers-italia
-
-    trackers:
-      matomo: "1"
-      ga: UA-140404450-1
+        url: https://medium.com/@AgidGov

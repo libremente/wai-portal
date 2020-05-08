@@ -12,7 +12,9 @@ use App\Models\User;
 use App\Models\Website;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Monolog\Logger;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
@@ -89,28 +91,24 @@ class LogsVisualizationTest extends TestCase
         ]);
 
         $this->secondPublicAdministration = factory(PublicAdministration::class)->create();
+
+        $client = new Client(['base_uri' => 'http://' . config('elastic-search.host') . ':' . config('elastic-search.port')]);
+        try {
+            $client->request('PUT', config('elastic-search.index_name'), []);
+        } catch (ClientException $e) {
+            if (!Str::contains($e->getMessage(), 'resource_already_exists_exception')) {
+                throw $e;
+            }
+        }
     }
 
     /**
      * Post-test tear down.
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException if unable to clear logs
      */
     protected function tearDown(): void
     {
         $client = new Client(['base_uri' => 'http://' . config('elastic-search.host') . ':' . config('elastic-search.port')]);
-        $client->request('POST', config('elastic-search.index_name') . '/_delete_by_query', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
-            'json' => [
-                'query' => [
-                    'match' => [
-                        'channel' => config('app.env'),
-                    ],
-                ],
-            ],
-        ]);
+        $client->request('DELETE', config('elastic-search.index_name'), []);
         parent::tearDown();
     }
 

@@ -8,11 +8,11 @@ use App\Events\User\UserLogin;
 use App\Events\User\UserLogout;
 use App\Http\Controllers\Controller;
 use App\Jobs\ClearPasswordResetToken;
-use App\Jobs\SendPasswordResetEmail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -67,8 +67,8 @@ class SuperAdminAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+            'email' => 'required|email:rfc,dns|max:75',
+            'password' => 'required|string|max:50',
         ]);
 
         if ($this->hasTooManyLoginAttempts($request)) {
@@ -134,7 +134,7 @@ class SuperAdminAuthController extends Controller
      */
     public function sendPasswordForgot(Request $request): RedirectResponse
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate(['email' => 'required|email:rfc,dns|max:75']);
         $email = $request->input('email');
 
         $user = User::where('email', $email)->first();
@@ -158,8 +158,7 @@ class SuperAdminAuthController extends Controller
         ]);
 
         $user->load('passwordResetToken');
-
-        dispatch(new SendPasswordResetEmail($user, $token));
+        $user->sendPasswordResetRequestNotification($token);
         dispatch(new ClearPasswordResetToken($user->passwordResetToken))->delay(now()->addHour());
 
         return redirect()->home()->withNotification([
@@ -196,12 +195,13 @@ class SuperAdminAuthController extends Controller
     {
         $validatedData = $request->validate([
             'token' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,dns|max:75',
             'password' => [
                 'required',
                 'confirmed',
                 'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/',
+                'max:50',
             ],
         ]);
 
@@ -267,6 +267,7 @@ class SuperAdminAuthController extends Controller
                 'confirmed',
                 'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/',
+                'max:50',
             ],
         ]);
 
@@ -292,6 +293,20 @@ class SuperAdminAuthController extends Controller
     public function username(): string
     {
         return 'email';
+    }
+
+    /**
+     * Redirect the user after determining they are locked out.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return void
+     */
+    protected function sendLockoutResponse(Request $request)
+    {
+        throw new ThrottleRequestsException('Too Many Attempts.');
     }
 
     /**

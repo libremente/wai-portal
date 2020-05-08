@@ -11,9 +11,11 @@ use App\Events\PublicAdministration\PublicAdministrationPurged;
 use App\Events\PublicAdministration\PublicAdministrationRegistered;
 use App\Events\PublicAdministration\PublicAdministrationUpdated;
 use App\Models\PublicAdministration;
+use App\Traits\SendsNotificationsToSuperAdmin;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -21,6 +23,8 @@ use Illuminate\Support\Facades\Cache;
  */
 class PublicAdministrationEventsSubscriber implements ShouldQueue
 {
+    use SendsNotificationsToSuperAdmin;
+
     /**
      * Public Administration registered callback.
      *
@@ -31,7 +35,15 @@ class PublicAdministrationEventsSubscriber implements ShouldQueue
         Cache::forget(PublicAdministration::PUBLIC_ADMINISTRATION_COUNT_KEY);
         $publicAdministration = $event->getPublicAdministration();
         $user = $event->getUser();
-        //TODO: inviare PEC a PA per la notifica?
+
+        //Notify registering user
+        $user->sendPublicAdministrationRegisteredNotification($publicAdministration);
+
+        if ($publicAdministration->rtd_mail) {
+            //Notify RTD
+            $publicAdministration->sendPublicAdministrationRegisteredNotificationToRTD();
+        }
+
         logger()->notice(
             'User ' . $user->uuid . ' registered Public Administration ' . $publicAdministration->info,
             [
@@ -58,6 +70,10 @@ class PublicAdministrationEventsSubscriber implements ShouldQueue
         } catch (Exception $exception) {
             report($exception);
         }
+
+        //Notify user (this user is also the only public administration administrator)
+        $user = $publicAdministration->users()->first();
+        $user->sendPublicAdministrationActivatedNotification($publicAdministration);
 
         logger()->notice(
             'Public Administration ' . $publicAdministration->info . ' activated',
@@ -93,6 +109,12 @@ class PublicAdministrationEventsSubscriber implements ShouldQueue
     public function onUpdated(PublicAdministrationUpdated $event): void
     {
         $publicAdministration = $event->getPublicAdministration();
+
+        if (Arr::has($event->getUpdates(), 'rtd_mail')) {
+            //Notify new RTD
+            $publicAdministration->sendPublicAdministrationUpdatedRTD();
+        }
+
         logger()->notice(
             'Public Administration ' . $publicAdministration->info . ' updated',
             [
@@ -109,8 +131,10 @@ class PublicAdministrationEventsSubscriber implements ShouldQueue
      */
     public function onNotFoundInIpa(PublicAdministrationNotFoundInIpa $event): void
     {
-        // TODO: send notification to super-admins
         $publicAdministration = $event->getPublicAdministration();
+
+        $this->sendPublicAdministrationNotFoundInIpa($publicAdministration);
+
         logger()->warning(
             'Public Administration ' . $publicAdministration->info . ' not found',
             [
@@ -130,7 +154,7 @@ class PublicAdministrationEventsSubscriber implements ShouldQueue
         //TODO: decidere come gestire i cambiamenti del sito istituzionale su IPA
         $publicAdministration = $event->getPublicAdministration();
         logger()->warning(
-            'Public Administration ' . $publicAdministration->info . ' primary website was changed in IPA index [' . $event->getNewURL() . '].',
+            'Public Administration ' . $publicAdministration->info . ' primary website was changed in IPA index [' . e($event->getNewURL()) . '].',
             [
                 'event' => EventType::PUBLIC_ADMINISTRATION_PRIMARY_WEBSITE_CHANGED,
                 'pa' => $publicAdministration->ipa_code,
@@ -146,8 +170,12 @@ class PublicAdministrationEventsSubscriber implements ShouldQueue
     public function onPurged(PublicAdministrationPurged $event): void
     {
         Cache::forget(PublicAdministration::PUBLIC_ADMINISTRATION_COUNT_KEY);
+        $user = $event->getUser();
         $publicAdministration = json_decode($event->getPublicAdministrationJson());
         $publicAdministrationInfo = '"' . $publicAdministration->name . '" [' . $publicAdministration->ipa_code . ']';
+
+        $user->sendPublicAdministrationPurgedNotification($publicAdministration);
+
         logger()->notice(
             'Public Administration ' . $publicAdministrationInfo . ' purged',
             [

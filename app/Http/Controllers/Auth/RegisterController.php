@@ -7,19 +7,21 @@ use App\Enums\UserStatus;
 use App\Events\User\UserLogin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\GetsLocalizedYamlContent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * User registration controller.
  */
 class RegisterController extends Controller
 {
+    use GetsLocalizedYamlContent;
+
     /**
      * Show the registration form.
      *
@@ -27,10 +29,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm(): View
     {
-        $tos = Yaml::parseFile(resource_path('data/tos.yml'));
-        $currentLocale = app()->getLocale();
-        $tosLocale = array_key_exists($currentLocale, $tos) ? $currentLocale : config('app.fallback_locale');
-        $tos = $tos[$tosLocale];
+        $tos = $this->getLocalizedYamlContent('tos');
 
         return view('auth.register')->with(compact('tos'));
     }
@@ -48,7 +47,7 @@ class RegisterController extends Controller
     {
         $input = $request->all();
         $validatedData = validator($input, [
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,dns|max:75',
             'accept_terms' => 'required',
         ])->after(function ($validator) use ($input) {
             if (array_key_exists('email', $input) && User::where('email', $input['email'])->whereDoesntHave('roles', function ($query) {

@@ -11,19 +11,29 @@ export default (() => {
     const rtdMailInputLabel = document.querySelector('label[for="rtd_mail"]');
     const rtdMailPresentMessage = document.getElementById('rtd_mail_present');
     const rtdMailMissingMessage = document.getElementById('rtd_mail_missing');
+    const primaryWebsiteMissingMessage = document.getElementById('primary_website_missing');
 
     const handleSelectedIpa = selectedResult => {
-        searchIpaInput.dataset.selectedPa = selectedResult.name;
         ipaCodeInput.value = selectedResult.ipa_code;
         urlInput.value = selectedResult.site;
         rtdNameInput.value = selectedResult.rtd_name || '';
         rtdMailInput.value = selectedResult.rtd_mail || '';
-        selectedResult.rtd_mail && rtdMailPresentMessage.classList.remove('d-none');
-        selectedResult.rtd_mail || rtdMailMissingMessage.classList.remove('d-none');
         urlInputLabel.classList.add('active');
         rtdNameInputLabel.classList.add('active');
         rtdMailInputLabel.classList.add('active');
+        toggleMissingPrimaryWebsiteMessage() && toggleRtdMessage();
     };
+
+    const toggleMissingPrimaryWebsiteMessage = () => {
+        ipaCodeInput.value && (urlInput.value || primaryWebsiteMissingMessage.classList.remove('d-none'));
+
+        return !!urlInput.value;
+    }
+
+    const toggleRtdMessage = () => {
+        ipaCodeInput.value && (rtdMailInput.value && rtdMailPresentMessage.classList.remove('d-none'));
+        ipaCodeInput.value && (rtdMailInput.value || rtdMailMissingMessage.classList.remove('d-none'));
+    }
 
     const onIpaSearch = () => {
         ipaCodeInput.value = '';
@@ -36,6 +46,7 @@ export default (() => {
         urlInputLabel.classList.remove('active');
         rtdNameInputLabel.classList.remove('active');
         rtdMailInputLabel.classList.remove('active');
+        primaryWebsiteMissingMessage.classList.add('d-none')
         rtdMailMissingMessage.classList.add('d-none');
         rtdMailPresentMessage.classList.add('d-none');
     };
@@ -50,6 +61,7 @@ export default (() => {
             handleSelectedResult: handleSelectedIpa,
             onSearch: onIpaSearch,
         });
+        searchIpaInput && toggleMissingPrimaryWebsiteMessage() && toggleRtdMessage();
     };
 
     return { init };

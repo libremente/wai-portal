@@ -1,6 +1,6 @@
 @extends('layouts.page')
 
-@section('title', __('FAQ - Domande ricorrenti'))
+@section('title', __('FAQ - Domande frequenti'))
 
 @section('content')
 <div class="text-serif mb-5">{{ __('Naviga per tema, per trovare le risposte che stai cercando. Non riesci a risolvere il tuo dubbio?') }} <a href="{{ route('contacts') }}">{{ __('Scrivici') }}</a>.</div>
@@ -10,7 +10,7 @@
             <div class="form-group px-4">
                 <div class="input-group">
                     <label for="faq-search">{{ __('Cerca tra le FAQ') }}</label>
-                    <input type="search" class="form-control" id="faq-search" maxlength="255">
+                    <input type="search" class="form-control" id="faq-search" maxlength="50">
                     <div class="input-group-append">
                         <div class="input-group-text"><svg class="icon icon-sm"><use xlink:href="{{ asset('svg/sprite.svg#it-search') }}"></use></svg></div>
                     </div>
@@ -54,12 +54,12 @@
         <div class="faqs-wrapper">
             <div class="faqs collapse-div ml-sm-5" role="tablist">
                 @foreach ($faqs as $faq)
-                <div id="faq-{{ $loop->iteration }}" class="faq" data-themes="{{ $faq['themes'] }}">
-                    <div class="collapse-header" id="faq-{{ $loop->iteration }}-heading">
-                        <button class="text-secondary d-flex flex-wrap flex-md-nowrap align-items-center" data-toggle="collapse" data-target="#faq-{{ $loop->iteration }}-body" aria-expanded="false" aria-controls="faq-{{ $loop->iteration }}-body">
+                <div id="{{ $faq['id'] ?? Str::slug($faq['question']) }}" class="faq" role="tab" data-themes="{{ $faq['themes'] }}">
+                    <div class="collapse-header" id="{{ $faq['id'] ?? Str::slug($faq['question']) }}-heading">
+                        <button class="text-secondary d-flex flex-wrap flex-md-nowrap align-items-center" data-toggle="collapse" data-target="#{{ $faq['id'] ?? Str::slug($faq['question']) }}-body" aria-expanded="false" aria-controls="{{ $faq['id'] ?? Str::slug($faq['question']) }}-body">
                             <span class="mr-auto">
                                 {{ $faq['question'] }}
-                                <a class="faq-anchor" href="#faq-{{ $loop->iteration }}">
+                                <a class="faq-anchor" href="#{{ $faq['id'] ?? Str::slug($faq['question']) }}" aria-labelledby="{{ $faq['id'] ?? Str::slug($faq['question']) }}">
                                     <svg class="icon icon-sm"><use xlink:href="{{ asset('svg/sprite.svg#it-link') }}"></use></svg>
                                 </a>
                             </span>
@@ -70,7 +70,7 @@
                             </span>
                         </button>
                     </div>
-                    <div id="faq-{{ $loop->iteration }}-body" class="collapse" role="tabpanel" aria-labelledby="faq-{{ $loop->iteration }}-heading">
+                    <div id="{{ $faq['id'] ?? Str::slug($faq['question']) }}-body" class="collapse" aria-labelledby="{{ $faq['id'] ?? Str::slug($faq['question']) }}" data-themes="{{ $faq['themes'] }}">
                         <div class="collapse-body text-serif">
                         @markdown($faq['answer'])
                         </div>

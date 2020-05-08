@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'HomeController@home')
     ->name('home');
 
+Route::get('/how-to-join', 'HomeController@howToJoin')
+    ->name('how-to-join');
+
 Route::get('/privacy', 'HomeController@privacy')
     ->name('privacy');
 
@@ -41,8 +44,8 @@ Route::get('/faq', 'HomeController@faq')
 Route::get('/contacts', 'HomeController@contacts')
     ->name('contacts');
 
-Route::get('/open-data', 'HomeController@openData')
-    ->name('open-data');
+// Route::get('/open-data', 'HomeController@openData')
+//     ->name('open-data');
 
 /*
  * Admin authentication routes.

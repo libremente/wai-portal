@@ -97,10 +97,10 @@ return [
     ],
 
     WebsiteType::class => [
-        WebsiteType::PRIMARY => 'institutional site',
-        WebsiteType::SECONDARY => 'informative or thematic',
-        WebsiteType::WEBAPP => 'interactive or web application',
-        WebsiteType::TESTING => 'testing or staging',
+        WebsiteType::INSTITUTIONAL => 'institutional website',
+        WebsiteType::INFORMATIONAL => 'informational or thematic website',
+        WebsiteType::SERVICE => 'services website',
+        WebsiteType::MOBILE => 'mobile application',
     ],
 
     WebsiteAccessType::class => [
@@ -150,6 +150,11 @@ return [
         EventType::USERS_INDEXING_COMPLETED => 'Users index update completed',
         EventType::WEBSITES_INDEXING_COMPLETED => 'Websites index update completed',
         EventType::EXPIRED_USER_INVITATION_USED => 'Activation attempt using expired invitation',
+        EventType::USER_PASSWORD_RESET_COMPLETED => 'User password reset completed',
+        EventType::USER_UPDATED => 'User updated',
+        EventType::WEBSITE_UPDATED => 'Website updated',
+        EventType::CLOSED_BETA_WHITELIST_UPDATE_FAILED => 'Closed beta whitelist update failed',
+        EventType::PURGE_PENDING_INVITATIONS_COMPLETED => 'Purge old pending invitations completed',
         EventType::MAIL_SENT => 'Mail sent',
     ],
 
@@ -179,5 +184,6 @@ return [
         JobType::PROCESS_USERS_INDEX => 'Update users index',
         JobType::PROCESS_WEBSITES_INDEX => 'Update websites index',
         JobType::MONITOR_WEBSITES_TRACKING => 'Monitor websites tracking status',
+        JobType::PURGE_PENDING_INVITATIONS => 'Purge old pending invitations',
     ],
 ];

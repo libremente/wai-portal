@@ -97,10 +97,10 @@ return [
     ],
 
     WebsiteType::class => [
-        WebsiteType::PRIMARY => 'sito istituzionale',
-        WebsiteType::SECONDARY => 'informativo o tematico',
-        WebsiteType::WEBAPP => 'interattivo o web application',
-        WebsiteType::TESTING => 'testing o staging',
+        WebsiteType::INSTITUTIONAL => 'sito istituzionale',
+        WebsiteType::INFORMATIONAL => 'sito informativo',
+        WebsiteType::SERVICE => 'sito di servizi',
+        WebsiteType::MOBILE => 'applicazione per dispositivi mobili',
     ],
 
     WebsiteAccessType::class => [
@@ -150,6 +150,11 @@ return [
         EventType::USERS_INDEXING_COMPLETED => 'Aggiornamento indice utenti completato',
         EventType::WEBSITES_INDEXING_COMPLETED => 'Aggiornamento indice siti web completato',
         EventType::EXPIRED_USER_INVITATION_USED => 'Tentativo di attivazione con invito scaduto',
+        EventType::USER_PASSWORD_RESET_COMPLETED => 'Utente modifica password completata',
+        EventType::USER_UPDATED => 'Utente aggiornato',
+        EventType::WEBSITE_UPDATED => 'Sito web aggiornato',
+        EventType::CLOSED_BETA_WHITELIST_UPDATE_FAILED => 'Aggiornamento closed beta whitelist fallito',
+        EventType::PURGE_PENDING_INVITATIONS_COMPLETED => 'Cancellazione vecchi inviti in attesa completata',
         EventType::MAIL_SENT => 'Email inviata',
     ],
 
@@ -179,6 +184,7 @@ return [
         JobType::PROCESS_USERS_INDEX => 'Aggiornamento indice utenti',
         JobType::PROCESS_WEBSITES_INDEX => 'Aggiornamento indice siti web',
         JobType::MONITOR_WEBSITES_TRACKING => 'Monitoraggio del tracciamento dei siti web',
+        JobType::PURGE_PENDING_INVITATIONS => 'Cancellazione vecchi inviti in attesa',
     ],
 
 ];
