@@ -40,13 +40,6 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * The public administration.
-     *
-     * @var PublicAdministration the public administration
-     */
-    private $publicAdministration;
-
-    /**
      * The website.
      *
      * @var Website the website
@@ -59,6 +52,13 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
      * @var User the user
      */
     public $user;
+
+    /**
+     * The public administration.
+     *
+     * @var PublicAdministration the public administration
+     */
+    private $publicAdministration;
 
     /**
      * Pre-tests setup.
@@ -514,92 +514,5 @@ class PublicAdministrationEventsSubscriberTest extends TestCase
         ]);
 
         event(new PublicAdministrationRegistered($this->publicAdministration, $user));
-    }
-
-    /**
-     * Test public administration activation failed event handler.
-     */
-    public function testPublicAdministrationActivationFailed(): void
-    {
-        $errorMessage = 'Fake error message for public administration activation';
-
-        $this->expectLogMessage('error', [
-            'Public Administration ' . $this->publicAdministration->info . ' activation failed: ' . $errorMessage,
-            [
-                'event' => EventType::PUBLIC_ADMINISTRATION_ACTIVATION_FAILED,
-                'pa' => $this->publicAdministration->ipa_code,
-            ],
-        ]);
-
-        event(new PublicAdministrationActivationFailed($this->publicAdministration, $errorMessage));
-    }
-
-    /**
-     * Test public administration updated event handler.
-     */
-    public function testPublicAdministrationUpdated(): void
-    {
-        $this->expectLogMessage('notice', [
-            'Public Administration ' . $this->publicAdministration->info . ' updated',
-            [
-                'event' => EventType::PUBLIC_ADMINISTRATION_UPDATED,
-                'pa' => $this->publicAdministration->ipa_code,
-            ],
-        ]);
-
-        event(new PublicAdministrationUpdated($this->publicAdministration, []));
-    }
-
-    /**
-     * Test public administration primary website activated event handler.
-     */
-    public function testPublicAdministrationNotFoundInIpa(): void
-    {
-        $this->expectLogMessage('warning', [
-            'Public Administration ' . $this->publicAdministration->info . ' not found',
-            [
-                'event' => EventType::PUBLIC_ADMINISTRATION_UPDATED,
-                'pa' => $this->publicAdministration->ipa_code,
-            ],
-        ]);
-
-        event(new PublicAdministrationNotFoundInIpa($this->publicAdministration));
-    }
-
-    /**
-     * Test public administration primary website activated event handler.
-     */
-    public function testPublicAdministrationPrimaryWebsiteUpdated(): void
-    {
-        $newURL = 'fakenewurl.local';
-        $website = factory(Website::class)->create([
-            'public_administration_id' => $this->publicAdministration->id,
-        ]);
-
-        $this->expectLogMessage('warning', [
-            'Public Administration ' . $this->publicAdministration->info . ' primary website was changed in IPA index [' . $newURL . '].',
-            [
-                'event' => EventType::PUBLIC_ADMINISTRATION_PRIMARY_WEBSITE_CHANGED,
-                'pa' => $this->publicAdministration->ipa_code,
-            ],
-        ]);
-
-        event(new PublicAdministrationPrimaryWebsiteUpdated($this->publicAdministration, $website, $newURL));
-    }
-
-    /**
-     * Test public administration deleted event handler.
-     */
-    public function testPublicAdministrationPurged(): void
-    {
-        $this->expectLogMessage('notice', [
-            'Public Administration ' . $this->publicAdministration->getInfo() . ' purged',
-            [
-                'event' => EventType::PUBLIC_ADMINISTRATION_PURGED,
-                'pa' => $this->publicAdministration->ipa_code,
-            ],
-        ]);
-
-        event(new PublicAdministrationPurged($this->publicAdministration->toJson()));
     }
 }

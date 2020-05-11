@@ -22,8 +22,7 @@ use App\Events\User\UserWebsiteAccessChanged;
 use App\Models\PublicAdministration;
 use App\Models\User;
 use App\Models\Website;
-
-/**
+/*
  * User events listener tests.
  */
 use App\Notifications\ActivatedEmail;

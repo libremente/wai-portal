@@ -775,7 +775,6 @@ class WebsiteEventsSubscriberTest extends TestCase
     /**
      * Test website updated event handler.
      */
-
     public function testWebsiteUpdated(): void
     {
         $this->partialMock(InteractsWithRedisIndex::class)
@@ -857,6 +856,7 @@ class WebsiteEventsSubscriberTest extends TestCase
                     'event' => EventType::WEBSITE_ADDED,
                     'website' => $this->website->id,
                     'pa' => $this->website->publicAdministration->ipa_code,
+                    'user' => $this->user->uuid,
                 ],
             ]
         );
@@ -883,7 +883,6 @@ class WebsiteEventsSubscriberTest extends TestCase
 
         event(new WebsiteActivated($this->website));
     }
-
 
     /**
      * Test website archived event handler.
