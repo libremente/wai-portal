@@ -14,7 +14,6 @@ use App\Events\User\UserInvited;
 use App\Events\User\UserLogin;
 use App\Events\User\UserLogout;
 use App\Events\User\UserReactivated;
-use App\Events\User\UserRestored;
 use App\Events\User\UserStatusChanged;
 use App\Events\User\UserSuspended;
 use App\Events\User\UserUpdated;
@@ -61,6 +60,65 @@ class UserEventsSubscriberTest extends TestCase
         Bouncer::dontCache();
     }
 
+    public function testUserSuspended(): void
+    {
+        $secondUser = factory(User::class)->state('active')->create();
+        $publicAdministration = factory(PublicAdministration::class)->state('active')->create();
+
+        $publicAdministration->users()->sync([$this->user->id => ['user_status' => UserStatus::ACTIVE]], false);
+        $publicAdministration->users()->sync([$secondUser->id => ['user_status' => UserStatus::ACTIVE]], false);
+
+        $publicAdministration->users()->sync([$this->user->id => ['user_status' => UserStatus::SUSPENDED]], false);
+
+        Bouncer::scope()->onceTo($publicAdministration->id, function () use ($secondUser) {
+            $this->user->assign(UserRole::ADMIN);
+            $secondUser->assign(UserRole::ADMIN);
+        });
+
+        $this->expectLogMessage('notice', [
+            'User ' . $this->user->uuid . ' suspended.',
+            [
+                'user' => $this->user->uuid,
+                'event' => EventType::USER_SUSPENDED,
+                'pa' => $publicAdministration->ipa_code,
+            ],
+        ]);
+
+        event(new UserSuspended($this->user, $publicAdministration));
+
+        Notification::assertSentTo(
+            [$this->user],
+            SuspendedEmail::class,
+            function ($notification, $channels) {
+                $this->assertEquals($channels, ['mail']);
+                $mail = $notification->toMail($this->user)->build();
+                $this->assertEquals($this->user->uuid, $mail->viewData['user']['uuid']);
+                $this->assertEquals($mail->subject, __('Utente sospeso'));
+
+                return $mail->hasTo($this->user->email, $this->user->full_name);
+            }
+        );
+
+        Notification::assertSentTo(
+            [$secondUser],
+            UserSuspendedEmail::class,
+            function ($notification, $channels) use ($secondUser) {
+                $this->assertEquals($channels, ['mail']);
+                $mail = $notification->toMail($secondUser)->build();
+                $this->assertEquals($secondUser->uuid, $mail->viewData['user']['uuid']);
+                $this->assertEquals($this->user->uuid, $mail->viewData['suspendedUser']['uuid']);
+                $this->assertEquals($mail->subject, __('Utente sospeso'));
+
+                return $mail->hasTo($secondUser->email, $secondUser->full_name);
+            }
+        );
+
+        Notification::assertNotSentTo(
+            [$this->user],
+            UserSuspendedEmail::class
+        );
+    }
+
     public function testUserRegistered(): void
     {
         $this->partialMock(InteractsWithRedisIndex::class)
@@ -91,7 +149,7 @@ class UserEventsSubscriberTest extends TestCase
                 $this->assertEquals($this->user->uuid, $mail->viewData['user']['uuid']);
                 $this->assertEquals('fakeverificationurl.local', $mail->viewData['signedUrl']);
                 $this->assertNull($mail->viewData['publicAdministration']);
-                $this->assertEquals($mail->subject, __('Registrazione su :app', ['app' => config('app.name')]));
+                $this->assertEquals($mail->subject, __('Account su :app', ['app' => config('app.name')]));
 
                 return $mail->hasTo($this->user->email, $this->user->full_name);
             }
@@ -278,7 +336,7 @@ class UserEventsSubscriberTest extends TestCase
                 $this->assertEquals($userInvited->uuid, $mail->viewData['user']['uuid']);
                 $this->assertEquals('fakeverificationurl.local', $mail->viewData['signedUrl']);
                 $this->assertEquals($publicAdministration->ipa_code, $mail->viewData['publicAdministration']['ipa_code']);
-                $this->assertEquals($mail->subject, __('Invito su :app', ['app' => config('app.name')]));
+                $this->assertEquals($mail->subject, __('Account su :app', ['app' => config('app.name')]));
 
                 return $mail->hasTo($userInvited->email, $userInvited->full_name);
             }
@@ -352,6 +410,8 @@ class UserEventsSubscriberTest extends TestCase
 
     public function testUserDeleted(): void
     {
+        $publicAdministration = factory(PublicAdministration::class)->state('active')->create();
+        $publicAdministration->users()->sync([$this->user->id => ['user_email' => $this->user->email, 'user_status' => UserStatus::ACTIVE]]);
         $this->expectLogMessage(
             'notice',
             [
@@ -359,95 +419,23 @@ class UserEventsSubscriberTest extends TestCase
                 [
                     'event' => EventType::USER_DELETED,
                     'user' => $this->user->uuid,
+                    'pa' => $publicAdministration->ipa_code,
                 ],
             ]
         );
 
-        event(new UserDeleted($this->user));
-    }
-
-    public function testUserRestored(): void
-    {
-        $this->expectLogMessage(
-            'notice',
-            [
-                'User ' . $this->user->uuid . ' restored.',
-                [
-                    'event' => EventType::USER_RESTORED,
-                    'user' => $this->user->uuid,
-                ],
-            ]
-        );
-
-        event(new UserRestored($this->user));
-    }
-
-    public function testUserSuspended(): void
-    {
-        $secondUser = factory(User::class)->state('active')->create();
-        $publicAdministration = factory(PublicAdministration::class)->state('active')->create();
-        $publicAdministration->users()->sync([$this->user->id, $secondUser->id]);
-        Event::fakeFor(function () {
-            $this->user->status = UserStatus::SUSPENDED;
-            $this->user->save();
-        });
-        Bouncer::scope()->onceTo($publicAdministration->id, function () use ($secondUser) {
-            $this->user->assign(UserRole::ADMIN);
-            $secondUser->assign(UserRole::ADMIN);
-        });
-
-        $this->expectLogMessage('notice', [
-            'User ' . $this->user->uuid . ' suspended.',
-            [
-                'user' => $this->user->uuid,
-                'event' => EventType::USER_SUSPENDED,
-            ],
-        ]);
-
-        event(new UserSuspended($this->user));
-
-        Notification::assertSentTo(
-            [$this->user],
-            SuspendedEmail::class,
-            function ($notification, $channels) {
-                $this->assertEquals($channels, ['mail']);
-                $mail = $notification->toMail($this->user)->build();
-                $this->assertEquals($this->user->uuid, $mail->viewData['user']['uuid']);
-                $this->assertEquals($mail->subject, __('Utente sospeso'));
-
-                return $mail->hasTo($this->user->email, $this->user->full_name);
-            }
-        );
-
-        Notification::assertSentTo(
-            [$secondUser],
-            UserSuspendedEmail::class,
-            function ($notification, $channels) use ($secondUser) {
-                $this->assertEquals($channels, ['mail']);
-                $mail = $notification->toMail($secondUser)->build();
-                $this->assertEquals($secondUser->uuid, $mail->viewData['user']['uuid']);
-                $this->assertEquals($this->user->uuid, $mail->viewData['suspendedUser']['uuid']);
-                $this->assertEquals($mail->subject, __('Utente sospeso'));
-
-                return $mail->hasTo($secondUser->email, $secondUser->full_name);
-            }
-        );
-
-        Notification::assertNotSentTo(
-            [$this->user],
-            UserSuspendedEmail::class
-        );
+        event(new UserDeleted($this->user, $publicAdministration));
     }
 
     public function testUserReactivated(): void
     {
         $secondUser = factory(User::class)->state('active')->create();
         $publicAdministration = factory(PublicAdministration::class)->state('active')->create();
-        $publicAdministration->users()->sync([$this->user->id, $secondUser->id]);
-        Event::fakeFor(function () {
-            $this->user->status = UserStatus::ACTIVE;
-            $this->user->save();
-        });
+        $publicAdministration->users()->sync([$this->user->id => ['user_status' => UserStatus::SUSPENDED]], false);
+        $publicAdministration->users()->sync([$secondUser->id => ['user_status' => UserStatus::SUSPENDED]], false);
+
+        $publicAdministration->users()->sync([$this->user->id => ['user_status' => UserStatus::ACTIVE]], false);
+
         Bouncer::scope()->onceTo($publicAdministration->id, function () use ($secondUser) {
             $this->user->assign(UserRole::ADMIN);
             $secondUser->assign(UserRole::ADMIN);
@@ -458,10 +446,11 @@ class UserEventsSubscriberTest extends TestCase
             [
                 'user' => $this->user->uuid,
                 'event' => EventType::USER_REACTIVATED,
+                'pa' => $publicAdministration->ipa_code,
             ],
         ]);
 
-        event(new UserReactivated($this->user));
+        event(new UserReactivated($this->user, $publicAdministration));
 
         Notification::assertSentTo(
             [$this->user],
@@ -539,7 +528,7 @@ class UserEventsSubscriberTest extends TestCase
                 $this->assertEquals($this->user->uuid, $mail->viewData['user']['uuid']);
                 $this->assertEquals('fakeverificationurl.local', $mail->viewData['signedUrl']);
                 $this->assertNull($mail->viewData['publicAdministration']);
-                $this->assertEquals($mail->subject, __('Registrazione su :app', ['app' => config('app.name')]));
+                $this->assertEquals($mail->subject, __('Account su :app', ['app' => config('app.name')]));
 
                 return $mail->hasTo($this->user->email, $this->user->full_name);
             }
@@ -575,7 +564,7 @@ class UserEventsSubscriberTest extends TestCase
                 $this->assertEquals($this->user->uuid, $mail->viewData['user']['uuid']);
                 $this->assertEquals('fakeverificationurl.local', $mail->viewData['signedUrl']);
                 $this->assertNull($mail->viewData['publicAdministration']);
-                $this->assertEquals($mail->subject, __('Registrazione su :app', ['app' => config('app.name')]));
+                $this->assertEquals($mail->subject, __('Account su :app', ['app' => config('app.name')]));
 
                 return $mail->hasTo($this->user->email, $this->user->full_name);
             }
@@ -614,7 +603,7 @@ class UserEventsSubscriberTest extends TestCase
                 $this->assertEquals($this->user->uuid, $mail->viewData['user']['uuid']);
                 $this->assertEquals('fakeverificationurl.local', $mail->viewData['signedUrl']);
                 $this->assertEquals($publicAdministration->ipa_code, $mail->viewData['publicAdministration']['ipa_code']);
-                $this->assertEquals($mail->subject, __('Invito su :app', ['app' => config('app.name')]));
+                $this->assertEquals($mail->subject, __('Account su :app', ['app' => config('app.name')]));
 
                 return $mail->hasTo($this->user->email, $this->user->full_name);
             }

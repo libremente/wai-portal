@@ -1,4 +1,4 @@
-- pcm # Presidenza del Consigio dei Ministri
+- pcm # Presidenza del Consiglio dei Ministri
 - agid # Agenzia per l'Italia Digitale
 - m_pi # MIUR
 - m_lps # Ministero del Lavoro
@@ -18,13 +18,20 @@
 - p_bz # Provincia Autonoma di Bolzano
 - p_tn # Provincia di Trento
 - csi_piem # CSI Piemonte
+- data # Liguria Digitale
 
 - cmge # Città Metropolitana di Genova
 - cmdrc # Città Metropolitana di Reggio Calabria
+- cmna # Città metropolitana di Napoli
 - c_a944 # Comune di Bologna
 - c_g273 # Comune di Palermo
 - c_a662 # Comune di Bari
 - c_f839 # Comune di Napoli
 - c_d612 # Comune Firenze
+- c_d467 # Comune di Fagnano Olona
 
 - unive # Università Ca Foscari
+
+- ingv # Istituto Nazionale di Geofisica e Vulcanologia
+
+- ifo_058 # IFO Regina Elena San Gallicano
